@@ -35,13 +35,19 @@ mkdir metataxonomic
 
 cd metataxonomic
 
+mkdir tmp
+
+export TMPDIR=/home/ins_user/metataxonomic/illumina/tmp
+
 mkdir raw_data
 
 cd raw_data
 
 gdown https://drive.google.com/uc?id=1sdOtHjQQOB5AZLHTuRSgi3eLp5wnym8l
 
-unzip illumina.zip 
+unzip illumina.zip
+
+gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
 ```
 
 ## 3. Análisis metataxonómico utilizando datos Illumina
@@ -138,17 +144,17 @@ qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-t
 
 ### Generar el reporte de los archivos generados:
 
-qiime feature-table summarize --i-table /data/BL16/nanopore/illumina/rimac/qiime2/table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
+qiime feature-table summarize --i-table /home/ins_user/metataxonomic/illumina/table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
 
-$ qiime metadata tabulate --m-input-file /data/BL16/nanopore/illumina/rimac/qiime2/denoising_stats.qza --o-visualization visualization/denoising_stats.qzv
+qiime metadata tabulate --m-input-file /home/ins_user/metataxonomic/illumina/denoising_stats.qza --o-visualization visualization/denoising_stats.qzv
 
-$ qiime feature-table tabulate-seqs --i-data /data/BL16/nanopore/illumina/rimac/qiime2/representatives.qza --o-visualization  visualization/representatives.qzv
+qiime feature-table tabulate-seqs --i-data /home/ins_user/metataxonomic/illumina/representatives.qza --o-visualization  visualization/representatives.qzv
 
 ### Exportar los archivos generados utilizando winscp y visualizarlo en https://view.qiime2.org/
 
 ### Realizar la asignación taxonómica utilizando la base de datos de SILVA:
 
-$ qiime feature-classifier classify-sklearn --i-classifier /data/BL16/nanopore/illumina/rimac/qiime2/silva-138-99-nb-classifier.qza --i-reads /data/BL16/nanopore/illumina/rimac/qiime2/representatives.qza --p-n-jobs 1 --o-classification taxa.qza
+qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxonomic/raw_data/silva-138-99-nb-classifier.qza --i-reads /home/ins_user/metataxonomic/illumina/representatives.qza --p-n-jobs 1 --o-classification taxa.qza
 
 ### Generar el reporte de la clasificación taxonómica:
 
