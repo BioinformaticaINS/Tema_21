@@ -68,7 +68,6 @@ gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
 ## 3. Análisis metataxonómico utilizando datos Illumina
 
 ```bash
-
 ### Crear los archivos metadata.txt y manifest.txt con las siguientes informaciones:
 
 cd ~/metataxonomic
@@ -134,6 +133,7 @@ Sample ID	cuenca	altitud
 22.Nuevo	Lower_Rimac	200
 23.Faucett	Lower_Rimac	33
 24.Gambetta	Lower_Rimac	8
+```
 
 ### Importar las lecturas de todas las muestras en archivo demuxed_seqs.qza:
 
