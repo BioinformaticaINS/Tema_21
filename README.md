@@ -143,7 +143,7 @@ qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-pa
 
 > **Comentario:** Este comando importa los datos de secuencia al formato QIIME 2. El parámetro --type especifica el tipo de datos, --input-path apunta al archivo manifest, --output-path define el nombre del archivo de salida, y --input-format indica el formato de los archivos fastq (lecturas pareadas con codificación de calidad Phred33).
 
-### Crear la carpeta visualización y generar el reporte de calidad del archivo demuxed_seqs.qza:
+### 3.3 Crear la carpeta visualización y generar el reporte de calidad del archivo demuxed_seqs.qza:
 
 ```bash
 mkdir visualization
@@ -152,9 +152,9 @@ qiime demux summarize --i-data demuxed_seqs.qza --o-visualization visualization/
 ```
 > **Comentario:** Genera un reporte de calidad de las secuencias demultiplexadas.
 
-### Visualizar el archivo creado en https://view.qiime2.org/
+### 3.4 Visualizar el archivo creado en https://view.qiime2.org/
 
-### Realizar la eliminación de iniciadores en las lecturas y generar el reporte del archivo resultante:
+### 3.5 Realizar la eliminación de iniciadores en las lecturas y generar el reporte del archivo resultante:
 
 ```bash
 qiime cutadapt trim-paired --i-demultiplexed-sequences demuxed_seqs.qza --p-cores 10 --p-front-f TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG --p-front-r GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC --p-minimum-length 100 --p-discard-untrimmed --o-trimmed-sequences demuxed_seqs_trimmed.qza
@@ -168,7 +168,7 @@ qiime demux summarize --i-data demuxed_seqs_trimmed.qza --o-visualization visual
 
 > **Comentario:** Se genera un nuevo resumen de calidad, esta vez para las secuencias que han sido recortadas, permitiendo evaluar el efecto del recorte en la calidad de los datos.
 
-### Realizar la eliminación de ruido (denoising)utilizando DADA2:
+### 3.6 Realizar la eliminación de ruido (denoising)utilizando DADA2:
 
 ```bash
 qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-trunc-len-f 0 --p-trunc-len-r 0 --p-n-threads 20 --o-table table.qza --o-representative-sequences representatives.qza --o-denoising-stats denoising_stats.qza
@@ -176,7 +176,7 @@ qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-t
 
 > **Comentario:** DADA2 se utiliza para el denoising de las secuencias, corrigiendo errores de secuenciación. Los parámetros --p-trunc-len-f y --p-trunc-len-r se establecen en 0 para no truncar las lecturas, --p-n-threads define el número de hilos a usar, y los parámetros --o- especifican los archivos de salida.
 
-### Generar el reporte de los archivos generados:
+### 3.7 Generar el reporte de los archivos generados:
 
 ```bash
 qiime feature-table summarize --i-table table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
@@ -196,9 +196,9 @@ qiime feature-table tabulate-seqs --i-data representatives.qza --o-visualization
 
 > **Comentario:** Se tabulan las secuencias representativas, permitiendo la visualización de las secuencias de ASVs identificadas.
 
-### Visualizar los archivos creados en https://view.qiime2.org/
+### 3.8 Visualizar los archivos creados en https://view.qiime2.org/
 
-### Realizar la asignación taxonómica utilizando la base de datos de SILVA:
+### 3.9 Realizar la asignación taxonómica utilizando la base de datos de SILVA:
 
 ```bash
 qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxonomic/raw_data/silva-138-99-nb-classifier.qza --i-reads representatives.qza --p-n-jobs 1 --o-classification taxa.qza
@@ -206,7 +206,7 @@ qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxo
 
 > **Comentario:**  Las secuencias representativas se clasifican taxonómicamente utilizando un clasificador pre-entrenado. El parámetro --i-classifier especifica el clasificador a usar, y --i-reads define el archivo de secuencias.
 
-### Generar el reporte de la clasificación taxonómica:
+### 3.10 Generar el reporte de la clasificación taxonómica:
 
 ```bash
 qiime metadata tabulate --m-input-file taxa.qza --o-visualization visualization/taxa.qzv
@@ -214,43 +214,75 @@ qiime metadata tabulate --m-input-file taxa.qza --o-visualization visualization/
 
 > **Comentario:** Se tabulan los resultados de la clasificación taxonómica, facilitando la visualización y análisis de la composición taxonómica de las muestras.
 
-### Visualizar el archivo creado en https://view.qiime2.org/
+### 3.11 Visualizar el archivo creado en https://view.qiime2.org/
 
-### Filtrar os ASVs en base a su clasificación taxonómica:
+### 3.12 Filtrar os ASVs en base a su clasificación taxonómica:
 
+```bash
 qiime taxa filter-table --i-table table.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-table table_f.qza
+```
 
+> **Comentario:** Se filtra la tabla de caracteristicas excluyendo los ASV clasificados como mitochondria y chloroplast.
+
+```bash
 qiime taxa filter-seqs --i-sequences representatives.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-sequences representatives_f.qza
+```
 
-### Generar el reporte grafico de barras de la clasificación taxonómica:
+> **Comentario:** Se filtra las secuencias representativas excluyendo los ASV clasificados como mitochondria y chloroplast.
 
+### 3.13 Generar el reporte grafico de barras de la clasificación taxonómica:
+
+```bash
 qiime taxa barplot --i-table table_f.qza --i-taxonomy taxa.qza --m-metadata-file metadata.txt --o-visualization visualization/taxa_barplot.qzv
+```
 
-### Exportar el archivo generado utilizando winscp y visualizarlo en https://view.qiime2.org/
+> **Comentario:** Se genera un gráfico de barras de la composición taxonómica.
 
-### Realizar el analisis filogenético de los ASVs:
+### 3.14 Visualizar el archivo creado en https://view.qiime2.org/
 
+### 3.15 Realizar el analisis filogenético de los ASVs:
+
+```bash
 qiime phylogeny align-to-tree-mafft-fasttree --i-sequences representatives_f.qza --o-alignment aligned_representative_sequences --o-masked-alignment masked_aligned_representative_sequences --o-tree unrooted_tree --o-rooted-tree rooted_tree
+```
 
-### Exportar los datos de abundancia y taxonomia:
+> **Comentario:** Se realiza un análisis filogenético de las secuencias representativas filtradas.
 
+### 3.16 Exportar los datos de abundancia y taxonomia:
+
+```bash
 qiime tools export --input-path table_f.qza --output-path exported_table
+```
 
+> **Comentario:** Se exporta la tabla de características filtrada.
+
+```bash
 qiime tools export --input-path taxa.qza --output-path exported_taxonomy
+```
 
-### Reemplazar la primera linea del archivo taxonomy.tsv:
+> **Comentario:** Se exporta la clasificación taxonómica.
 
+### 3.17 Reemplazar la primera linea del archivo taxonomy.tsv:
+
+```bash
 sed -i 's/Feature /#OTU/g' exported_taxonomy/taxonomy.tsv
 
 sed -i 's/Taxon/taxonomy/g' exported_taxonomy/taxonomy.tsv
 
 sed -i 's/Confidence/confidence/g' exported_taxonomy/taxonomy.tsv
+```
 
-### Generar el archivo BIOM:
+> **Comentario:** Se formatean los archivos de taxonomía exportados para compatibilidad con otras herramientas.
 
+### 3.18 Generar el archivo BIOM:
+
+```bash
 biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp exported_taxonomy/taxonomy.tsv --sc-separated taxonomy -o feature-table-tax.biom
+```
 
-### Exportar los archivos BIOM y metadata.txt utilizando winscp.
+> **Comentario:** Se genera un archivo BIOM que combina la tabla de características filtrada con la información taxonómica. Este archivo es útil para análisis adicionales y visualizaciones.
+
+### Exportar los archivos BIOM y metadata.txt y visualizarlos en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
 
 ## 4. Análisis metataxonómico utilizando datos Nanopore
 
