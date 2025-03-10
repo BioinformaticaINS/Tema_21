@@ -67,7 +67,7 @@ gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
  
 ## 3. Análisis metataxonómico utilizando datos Illumina
 
-### Crear los archivos metadata.txt y manifest.txt con las siguientes informaciones:
+### 3.1 Crear los archivos metadata.txt y manifest.txt con las siguientes informaciones:
 
 ```bash
 cd ~/metataxonomic
@@ -135,7 +135,7 @@ Sample ID	cuenca	altitud
 24.Gambetta	Lower_Rimac	8
 ```
 
-### Importar las lecturas de todas las muestras en archivo demuxed_seqs.qza:
+### 3.2 Importar las lecturas de todas las muestras en archivo demuxed_seqs.qza:
 
 ```bash
 qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.txt --output-path demuxed_seqs.qza --input-format PairedEndFastqManifestPhred33V2
@@ -178,23 +178,43 @@ qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-t
 
 ### Generar el reporte de los archivos generados:
 
+```bash
 qiime feature-table summarize --i-table table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
+```
 
+> **Comentario:** Se genera un resumen de la tabla de características, que incluye estadísticas sobre la distribución y abundancia de ASVs.
+
+```bash
 qiime metadata tabulate --m-input-file denoising_stats.qza --o-visualization visualization/denoising_stats.qzv
+```
 
+> **Comentario:** Se tabulan los metadatos de las estadísticas de denoising, proporcionando una visión detallada del proceso de corrección de errores.
+
+```bash
 qiime feature-table tabulate-seqs --i-data representatives.qza --o-visualization  visualization/representatives.qzv
+```
 
-### Exportar los archivos generados utilizando winscp y visualizarlo en https://view.qiime2.org/
+> **Comentario:** Se tabulan las secuencias representativas, permitiendo la visualización de las secuencias de ASVs identificadas.
+
+### Visualizar los archivos creados en https://view.qiime2.org/
 
 ### Realizar la asignación taxonómica utilizando la base de datos de SILVA:
 
+```bash
 qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxonomic/raw_data/silva-138-99-nb-classifier.qza --i-reads representatives.qza --p-n-jobs 1 --o-classification taxa.qza
+```
+
+> **Comentario:**  Las secuencias representativas se clasifican taxonómicamente utilizando un clasificador pre-entrenado. El parámetro --i-classifier especifica el clasificador a usar, y --i-reads define el archivo de secuencias.
 
 ### Generar el reporte de la clasificación taxonómica:
 
+```bash
 qiime metadata tabulate --m-input-file taxa.qza --o-visualization visualization/taxa.qzv
+```
 
-### Exportar el archivo generado utilizando winscp y visualizarlo en https://view.qiime2.org/
+> **Comentario:** Se tabulan los resultados de la clasificación taxonómica, facilitando la visualización y análisis de la composición taxonómica de las muestras.
+
+### Visualizar el archivo creado en https://view.qiime2.org/
 
 ### Filtrar os ASVs en base a su clasificación taxonómica:
 
