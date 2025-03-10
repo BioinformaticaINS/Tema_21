@@ -141,11 +141,16 @@ Sample ID	cuenca	altitud
 qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.txt --output-path demuxed_seqs.qza --input-format PairedEndFastqManifestPhred33V2
 ```
 
+> **Comentario:** Importa las lecturas de todas las muestras en un archivo QIIME 2 (demuxed_seqs.qza). El formato PairedEndFastqManifestPhred33V2 especifica que son lecturas pareadas y la calidad está en Phred33.
+
 ### Crear la carpeta visualización y generar el reporte de calidad del archivo demuxed_seqs.qza:
 
+```bash
 mkdir visualization
 
 qiime demux summarize --i-data demuxed_seqs.qza --o-visualization visualization/seqs_quality.qzv
+```
+> **Comentario:** Genera un reporte de calidad de las secuencias demultiplexadas. El archivo .qzv se puede visualizar en view.qiime2.org.
 
 ### Exportar el archive generado utilizando winscp y visualizarlo en https://view.qiime2.org/
 
