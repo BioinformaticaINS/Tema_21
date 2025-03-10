@@ -67,9 +67,9 @@ gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
  
 ## 3. Análisis metataxonómico utilizando datos Illumina
 
-```bash
 ### Crear los archivos metadata.txt y manifest.txt con las siguientes informaciones:
 
+```bash
 cd ~/metataxonomic
 
 mkdir illumina
@@ -137,7 +137,9 @@ Sample ID	cuenca	altitud
 
 ### Importar las lecturas de todas las muestras en archivo demuxed_seqs.qza:
 
+```bash
 qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.txt --output-path demuxed_seqs.qza --input-format PairedEndFastqManifestPhred33V2
+```
 
 ### Crear la carpeta visualización y generar el reporte de calidad del archivo demuxed_seqs.qza:
 
