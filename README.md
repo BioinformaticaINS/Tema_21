@@ -20,11 +20,10 @@ conda create -n metataxonomic -c bioconda kraken2 krakentools kraken-biom
 ```
 
 > **Comentario:** 
-> - `prokka`: Anotación rápida de genomas procariotas.
-> - `abricate`: Detección masiva de contigs para genes de resistencia antimicrobiana y virulencia.
-> - `rgi`: Identificador de genes de resistencia a antibióticos.
-> - `integron_finder`: Detecta integrones en genomas procariotas.
-> - `mgcplotter`: Visualiza el contexto genético de un genoma.
+> - `qiime2`: Es una plataforma integral para el análisis de microbiomas, abarcando desde el control de calidad de las secuencias hasta la generación de visualizaciones y análisis estadísticos; su arquitectura modular y su amplia gama de herramientas permiten a los investigadores realizar análisis complejos de diversidad microbiana, filogenia y función, consolidándose como una herramienta indispensable en el campo de la ecología microbiana.
+> - `kraken2`: Se destaca por su rapidez y precisión en la clasificación taxonómica de secuencias de ADN, permitiendo la identificación de microorganismos presentes en muestras complejas mediante la comparación con extensas bases de datos genómicas; su eficiencia lo hace ideal para el análisis de grandes conjuntos de datos de secuenciación de alto rendimiento, proporcionando información detallada sobre la composición microbiana de diversas muestras ambientales.
+> - `krakentools`: Actúa como un complemento esencial para Kraken2, ofreciendo una variedad de utilidades para el procesamiento y la manipulación de los resultados obtenidos; estas herramientas facilitan la conversión de datos a formatos más manejables, la generación de informes resumidos y la extracción de información taxonómica específica, simplificando así el análisis y la interpretación de los datos de clasificación.
+> - `kraken-biom`: Se especializa en la conversión de los resultados de Kraken2 al formato BIOM, un estándar fundamental en el análisis de microbiomas; al transformar los datos de abundancia taxonómica en una matriz estructurada, esta herramienta permite la integración fluida de los resultados de Kraken2 con otras plataformas de análisis, como QIIME 2, facilitando el análisis comparativo y la visualización de la diversidad microbiana.
 
 ## 2. Obtención de los datos 
 
@@ -37,16 +36,30 @@ cd metataxonomic
 
 mkdir tmp
 
-export TMPDIR=/home/ins_user/metataxonomic/illumina/tmp
+export TMPDIR=/home/ins_user/metataxonomic/tmp
 
 mkdir raw_data
 
 cd raw_data
+```
 
+```bash
 gdown https://drive.google.com/uc?id=1sdOtHjQQOB5AZLHTuRSgi3eLp5wnym8l
 
 unzip illumina.zip
+```
 
+> **Comentario:** El archivo illumina.zip contiene datos de secuenciación de 16S (región V3-V4) del artículo científico "From the Andes to the desert: 16S rRNA metabarcoding characterization of aquatic bacterial communities in the Rimac river, the main source of water for Lima, Peru" (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0250401).
+
+```bash
+gdown https://drive.google.com/uc?id=1WmKIRuYEcckk5BLqKYLqReobwhetBLKT
+
+unzip nanopore.zip
+```
+
+> **Comentario:** El archivo nanopore.zip contiene datos de secuenciación de 16S (completo) del artículo científico "The clinical utility of Nanopore 16S rRNA gene sequencing for direct bacterial identification in normally sterile body fluids" (https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2023.1324494/full).
+
+```bash
 gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
 ```
 
@@ -198,6 +211,19 @@ biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp
 
 ### Exportar los archivos BIOM y metadata.txt utilizando winscp.
 
+## 4. Análisis metataxonómico utilizando datos Nanopore
+
+```bash
+
+cd ~/metataxonomic
+
+mkdir nanopore
+
+cd nanopore
+
+conda activate metataxonomic
+
+nano manifest.txt
 
 
 
