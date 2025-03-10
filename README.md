@@ -141,7 +141,7 @@ Sample ID	cuenca	altitud
 qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.txt --output-path demuxed_seqs.qza --input-format PairedEndFastqManifestPhred33V2
 ```
 
-> **Comentario:** Importa las lecturas de todas las muestras en un archivo QIIME 2 (demuxed_seqs.qza). El formato PairedEndFastqManifestPhred33V2 especifica que son lecturas pareadas y la calidad está en Phred33.
+> **Comentario:** Este comando importa los datos de secuencia al formato QIIME 2. El parámetro --type especifica el tipo de datos, --input-path apunta al archivo manifest, --output-path define el nombre del archivo de salida, y --input-format indica el formato de los archivos fastq (lecturas pareadas con codificación de calidad Phred33).
 
 ### Crear la carpeta visualización y generar el reporte de calidad del archivo demuxed_seqs.qza:
 
@@ -150,19 +150,31 @@ mkdir visualization
 
 qiime demux summarize --i-data demuxed_seqs.qza --o-visualization visualization/seqs_quality.qzv
 ```
-> **Comentario:** Genera un reporte de calidad de las secuencias demultiplexadas. El archivo .qzv se puede visualizar en view.qiime2.org.
+> **Comentario:** Genera un reporte de calidad de las secuencias demultiplexadas.
 
-### Exportar el archive generado utilizando winscp y visualizarlo en https://view.qiime2.org/
+### Visualizar el archivo creado en https://view.qiime2.org/
 
 ### Realizar la eliminación de iniciadores en las lecturas y generar el reporte del archivo resultante:
 
-qiime cutadapt trim-paired --i-demultiplexed-sequences demuxed_seqs.qza --p-cores 10 --p-front-f TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG --p-front-r GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC CTGCWGCCNCCCGTAGGCTGTCTCTTATACACATCTGACGCTGCCGACGA --p-minimum-length 100 --p-discard-untrimmed --o-trimmed-sequences demuxed_seqs_trimmed.qza
+```bash
+qiime cutadapt trim-paired --i-demultiplexed-sequences demuxed_seqs.qza --p-cores 10 --p-front-f TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG --p-front-r GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC --p-minimum-length 100 --p-discard-untrimmed --o-trimmed-sequences demuxed_seqs_trimmed.qza
+```
 
+> **Comentario:** Con 'cutadapt', se eliminan los adaptadores y primers de las secuencias. Los parámetros --p-front-f y --p-front-r definen las secuencias a eliminar, --p-minimum-length establece la longitud mínima de las lecturas, y --p-discard-untrimmed descarta secuencias no recortadas.
+
+```bash
 qiime demux summarize --i-data demuxed_seqs_trimmed.qza --o-visualization visualization/seqs_quality_trimmed.qzv
+```
+
+> **Comentario:** Se genera un nuevo resumen de calidad, esta vez para las secuencias que han sido recortadas, permitiendo evaluar el efecto del recorte en la calidad de los datos.
 
 ### Realizar la eliminación de ruido (denoising)utilizando DADA2:
 
+```bash
 qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-trunc-len-f 0 --p-trunc-len-r 0 --p-n-threads 20 --o-table table.qza --o-representative-sequences representatives.qza --o-denoising-stats denoising_stats.qza
+```
+
+> **Comentario:** DADA2 se utiliza para el denoising de las secuencias, corrigiendo errores de secuenciación. Los parámetros --p-trunc-len-f y --p-trunc-len-r se establecen en 0 para no truncar las lecturas, --p-n-threads define el número de hilos a usar, y los parámetros --o- especifican los archivos de salida.
 
 ### Generar el reporte de los archivos generados:
 
