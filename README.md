@@ -63,6 +63,8 @@ unzip nanopore.zip
 gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
 ```
 
+> **Comentario:**  Permite descargar el archivo silva-138-99-nb-classifier.qza es un modelo de aprendizaje automático pre-entrenado con scikit-learn (sklearn)que permite a QIIME 2 identificar los tipos de microorganismos presentes en muestras de ADN, utilizando como referencia la base de datos de ARN ribosómico SILVA 138; este clasificador facilita la asignación taxonómica rápida y precisa de secuencias microbianas, lo que es crucial para analizar la composición y diversidad de las comunidades microbianas en diversos entornos (https://github.com/qiime2/resources/blob/main/index.md).
+ 
 ## 3. Análisis metataxonómico utilizando datos Illumina
 
 ```bash
