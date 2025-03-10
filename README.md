@@ -144,65 +144,61 @@ qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-t
 
 ### Generar el reporte de los archivos generados:
 
-qiime feature-table summarize --i-table /home/ins_user/metataxonomic/illumina/table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
+qiime feature-table summarize --i-table table.qza --m-sample-metadata-file metadata.txt --o-visualization visualization/table_denoised.qzv
 
-qiime metadata tabulate --m-input-file /home/ins_user/metataxonomic/illumina/denoising_stats.qza --o-visualization visualization/denoising_stats.qzv
+qiime metadata tabulate --m-input-file denoising_stats.qza --o-visualization visualization/denoising_stats.qzv
 
-qiime feature-table tabulate-seqs --i-data /home/ins_user/metataxonomic/illumina/representatives.qza --o-visualization  visualization/representatives.qzv
+qiime feature-table tabulate-seqs --i-data representatives.qza --o-visualization  visualization/representatives.qzv
 
 ### Exportar los archivos generados utilizando winscp y visualizarlo en https://view.qiime2.org/
 
 ### Realizar la asignación taxonómica utilizando la base de datos de SILVA:
 
-qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxonomic/raw_data/silva-138-99-nb-classifier.qza --i-reads /home/ins_user/metataxonomic/illumina/representatives.qza --p-n-jobs 1 --o-classification taxa.qza
+qiime feature-classifier classify-sklearn --i-classifier /home/ins_user/metataxonomic/raw_data/silva-138-99-nb-classifier.qza --i-reads representatives.qza --p-n-jobs 1 --o-classification taxa.qza
 
 ### Generar el reporte de la clasificación taxonómica:
 
-$ qiime metadata tabulate --m-input-file taxa.qza --o-visualization visualization/taxa.qzv
+qiime metadata tabulate --m-input-file taxa.qza --o-visualization visualization/taxa.qzv
 
 ### Exportar el archivo generado utilizando winscp y visualizarlo en https://view.qiime2.org/
 
 ### Filtrar os ASVs en base a su clasificación taxonómica:
 
-$ qiime taxa filter-table --i-table /data/BL16/nanopore/illumina/rimac/qiime2/table.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-table table_f.qza
+qiime taxa filter-table --i-table table.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-table table_f.qza
 
-$ qiime taxa filter-seqs --i-sequences /data/BL16/nanopore/illumina/rimac/qiime2/representatives.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-sequences representatives_f.qza
+qiime taxa filter-seqs --i-sequences representatives.qza --i-taxonomy taxa.qza --p-include p__ --p-exclude mitochondria,chloroplast --o-filtered-sequences representatives_f.qza
 
 ### Generar el reporte grafico de barras de la clasificación taxonómica:
 
-$ qiime taxa barplot --i-table table_f.qza --i-taxonomy taxa.qza --m-metadata-file metadata.txt --o-visualization visualization/taxa_barplot.qzv
+qiime taxa barplot --i-table table_f.qza --i-taxonomy taxa.qza --m-metadata-file metadata.txt --o-visualization visualization/taxa_barplot.qzv
 
 ### Exportar el archivo generado utilizando winscp y visualizarlo en https://view.qiime2.org/
 
 ### Realizar el analisis filogenético de los ASVs:
 
-$ qiime phylogeny align-to-tree-mafft-fasttree --i-sequences representatives_f.qza --o-alignment aligned_representative_sequences --o-masked-alignment masked_aligned_representative_sequences --o-tree unrooted_tree --o-rooted-tree rooted_tree
+qiime phylogeny align-to-tree-mafft-fasttree --i-sequences representatives_f.qza --o-alignment aligned_representative_sequences --o-masked-alignment masked_aligned_representative_sequences --o-tree unrooted_tree --o-rooted-tree rooted_tree
 
 ### Exportar los datos de abundancia y taxonomia:
 
-$ qiime tools export --input-path table_f.qza --output-path exported_table
+qiime tools export --input-path table_f.qza --output-path exported_table
 
-$ qiime tools export --input-path taxa.qza --output-path exported_taxonomy
+qiime tools export --input-path taxa.qza --output-path exported_taxonomy
 
 ### Reemplazar la primera linea del archivo taxonomy.tsv:
 
-$ sed -i 's/Feature /#OTU/g' exported_taxonomy/taxonomy.tsv
+sed -i 's/Feature /#OTU/g' exported_taxonomy/taxonomy.tsv
 
-$ sed -i 's/Taxon/taxonomy/g' exported_taxonomy/taxonomy.tsv
+sed -i 's/Taxon/taxonomy/g' exported_taxonomy/taxonomy.tsv
 
-$ sed -i 's/Confidence/confidence/g' exported_taxonomy/taxonomy.tsv
+sed -i 's/Confidence/confidence/g' exported_taxonomy/taxonomy.tsv
 
 ### Generar el archivo BIOM:
 
-$ biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp exported_taxonomy/taxonomy.tsv --sc-separated taxonomy -o feature-table-tax.biom
+biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp exported_taxonomy/taxonomy.tsv --sc-separated taxonomy -o feature-table-tax.biom
 
 ### Exportar los archivos BIOM y metadata.txt utilizando winscp.
-![image](https://github.com/user-attachments/assets/5c7d91b0-c4da-47c4-882c-74e2b0fdd7df)
 
 
-
-
-cd ~/genomics/assembly/nanopore
 
 
 
