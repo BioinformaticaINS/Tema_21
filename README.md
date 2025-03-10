@@ -64,7 +64,15 @@ gdown https://drive.google.com/uc?id=13NDPF99mz8FxZ-eLtJpy6GbpaP4D4v64
 ```
 
 > **Comentario:**  Permite descargar el archivo silva-138-99-nb-classifier.qza es un modelo de aprendizaje automático pre-entrenado con scikit-learn (sklearn)que permite a QIIME 2 identificar los tipos de microorganismos presentes en muestras de ADN, utilizando como referencia la base de datos de ARN ribosómico SILVA 138; este clasificador facilita la asignación taxonómica rápida y precisa de secuencias microbianas, lo que es crucial para analizar la composición y diversidad de las comunidades microbianas en diversos entornos (https://github.com/qiime2/resources/blob/main/index.md).
- 
+
+```bash
+wget https://genome-idx.s3.amazonaws.com/kraken/16S_Silva138_20200326.tgz
+
+tar xzvf 16S_Silva138_20200326.tgz
+```
+
+> **Comentario:** Permite descargar una base de datos de Kraken 2 optimizada para análisis de secuencias 16S rRNA de SILVA.
+
 ## 3. Análisis metataxonómico utilizando datos Illumina
 
 ### 3.1 Crear los archivos metadata.txt y manifest.txt con las siguientes informaciones:
@@ -286,8 +294,9 @@ biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp
 
 ## 4. Análisis metataxonómico utilizando datos Nanopore
 
-```bash
+### 4.1 Generar la carpeta de trabajo:
 
+```bash
 cd ~/metataxonomic
 
 mkdir nanopore
@@ -295,8 +304,62 @@ mkdir nanopore
 cd nanopore
 
 conda activate metataxonomic
+```
 
-nano manifest.txt
+### 4.2 Generar un script:
+
+```bash
+nano kraken2.sh
+```
+
+### 4.3 Pegar la siguiente información:
+
+```bash
+#!/bin/bash
+
+# Directorio con los archivos fastq.gz (entrada)
+input_dir="/home/ins_user/metataxonomic/raw_data/nanopore"
+
+# Directorio para los archivos de salida
+output_dir="/home/ins_user/metataxonomic/nanopore"
+
+# Directorio de la base de datos Kraken 2
+db_dir="/home/ins_user/metataxonomic/raw_data/16S_SILVA138_k2db"
+
+# Número de hilos a usar
+threads=2
+
+# Iterar sobre todos los archivos fastq.gz en el directorio de entrada
+for file in "$input_dir"/*.fastq.gz; do
+  # Obtener el nombre base del archivo sin la extensión
+  base_name=$(basename "$file" .fastq.gz)
+
+  # Ejecutar Kraken 2
+  kraken2 \
+    -db "$db_dir" \
+    --threads "$threads" \
+    --use-names \
+    "$file" \
+    --output "$output_dir/$base_name.kraken" \
+    --report "$output_dir/$base_name.report"
+
+  echo "Kraken 2 analysis completed for $file"
+done
+```
+
+
+### Generar el archivo BIOM para cada base de datos y exportarlo:
+
+kraken-biom *.report --fmt json --metadata metadata.txt -o fluid.biom
+
+
+
+
+
+
+
+kraken2 -db /home/ins_user/metataxonomic/raw_data/16S_SILVA138_k2db --threads 2 --use-names /home/ins_user/metataxonomic/raw_data/nanopore/SRR25820513.fastq.gz --output SRR25820513.kraken --report SRR25820513.report
+
 
 
 
