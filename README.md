@@ -293,6 +293,8 @@ biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp
 
 ### Exportar los archivos BIOM y metadata.txt para luego visualizarlos en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
 
+> **Comentario:** Este último paso implica subir el archivo BIOM (feature-table-tax.biom) y metadata.txt a la plataforma web MicrobiomeAnalyst para su análisis y visualización interactiva. MicrobiomeAnalyst ofrece una amplia gama de herramientas para el análisis de datos de microbiomas, incluyendo análisis de diversidad, análisis de abundancia diferencial y visualizaciones interactivas. Los resultados de este paso dependerán del análisis específico realizado en MicrobiomeAnalyst.
+
 ## 4. Análisis metataxonómico utilizando datos Nanopore
 
 ### 4.1 Generar la carpeta de trabajo:
@@ -306,6 +308,8 @@ cd nanopore
 
 conda activate metataxonomic
 ```
+
+> **Comentario:** Estos comandos inician la preparación del entorno de trabajo para el análisis metataxonómico con datos Nanopore. Primero, se desplaza al directorio principal metataxonomic. Luego, crea un nuevo directorio llamado nanopore dentro de ese directorio, donde se almacenarán todos los datos y resultados específicos de Nanopore. Finalmente, activa el entorno de conda llamado metataxonomic, asegurando que todas las dependencias necesarias estén disponibles para el análisis.
 
 ### 4.2 Generar un script para correr kraken 2 en varias muestras:
 
@@ -346,6 +350,8 @@ for file in "$input_dir"/*.fastq.gz; do
 done
 ```
 
+> **Comentario:** Estos comandos crean un script llamado kraken2.sh que automatiza la ejecución de Kraken 2 en múltiples archivos de datos Nanopore. El script define las rutas a los directorios de entrada (archivos fastq.gz), salida, y la base de datos de Kraken 2, así como el número de hilos para el procesamiento paralelo. Luego, utiliza un bucle for para iterar a través de cada archivo fastq.gz en el directorio de entrada. Para cada archivo, extrae el nombre base, ejecuta Kraken 2 con las opciones especificadas, y guarda los resultados (archivos .kraken y .report) en el directorio de salida. Finalmente, imprime un mensaje indicando que el análisis de Kraken 2 se ha completado para cada archivo.
+
 ```bash
 head -n 20 SRR25820513.report
 
@@ -371,6 +377,8 @@ head -n 20 SRR25820513.report
   0.00	2	0	O	45158	        Alicyclobacillales
 ```
 
+> **Comentario:** Este es un ejemplo de las primeras 20 líneas del archivo de reporte de Kraken 2 para la muestra SRR25820513. Cada línea representa un taxón identificado, con información como el porcentaje de lecturas clasificadas, el número de lecturas, el rango taxonómico, el ID taxonómico y el nombre del taxón.
+
 ```bash
 head -n 3 SRR25820513.kraken
 
@@ -379,13 +387,19 @@ C	SRR25820513.2	Streptococcus (taxid 1853)	1482	3:22 1853:5 0:15 1673:3 1674:2 0
 C	SRR25820513.3	Streptococcus (taxid 1853)	1503	3:33 1850:3 3:5 1850:17 3:90 1853:1 3:7 1853:5 3:1 1853:15 3:67 1:2 3:1 0:27 3:33 1:19 3:23 1800:4 3:10 1853:6 3:1 1853:5 1673:4 3:89 1853:16 1673:5 1853:1 1673:5 3:30 1853:21 1800:5 1853:1 3:13 1672:11 1853:10 0:23 1853:1 0:5 1853:6 1672:5 1853:5 3:5 1673:1 0:25 3303:5 0:4 3:7 1:3 3:26 1853:2 0:4 1853:1 0:18 1688:1 1800:7 0:11 3:16 1:19 3:84 1:1 3:5 1:1 3:1 1:3 3:5 1:7 3:68 1800:1 0:5 45277:5 0:38 1672:8 3:74 1800:2 1853:9 3:22 1672:3 3:5 1853:1 3:2 1850:5 1672:2 1673:5 3:1 1673:1 3:19 45342:3 3:8 0:32 1853:5 3:14 0:6 1853:3 1672:1 0:2 1853:4 0:16 1673:1 1:2 3:64 1853:5 0:23 3723:7 3:104
 ```
 
+> **Comentario:** Este es un ejemplo de las primeras 3 líneas del archivo .kraken para la muestra SRR25820513. Cada línea representa una lectura clasificada por Kraken 2, mostrando información como el estado de clasificación (C para clasificado), el ID de la lectura, el taxón identificado y su ID taxonómico, y una lista de k-mers coincidentes con la base de datos de Kraken 2.
+
 ### 4.3 Visualizar los archivos report en https://fbreitwieser.shinyapps.io/pavian/
+
+> **Comentario:** Este paso implica subir los archivos .report generados por Kraken 2 a la aplicación web Pavian para su visualización interactiva. Pavian permite explorar la composición taxonómica de las muestras, identificar los taxones más abundantes y comparar la diversidad entre muestras. Los resultados de este paso dependerán de los datos específicos de cada archivo .report subido.
 
 ### 4.4 Visualizar los archivos report en krona:
 
 ```bash
 ktUpdateTaxonomy.sh
 ```
+
+> **Comentario:** Este comando actualiza la taxonomía utilizada por Krona, asegurando que los nombres y la jerarquía taxonómica estén actualizados para la visualización.
 
 ```bash
 kreport2krona.py -r SRR25820513.report -o SRR25820513.krona
@@ -395,9 +409,13 @@ kreport2krona.py -r SRR25820516.report -o SRR25820516.krona
 kreport2krona.py -r SRR25820522.report -o SRR25820522.krona
 ```
 
+> **Comentario:** Estos comandos convierten los archivos .report de Kraken 2 a formato Krona (.krona), que es un formato jerárquico para la visualización de datos taxonómicos. Se genera un archivo .krona para cada muestra (SRR25820513, SRR25820516 y SRR25820522).
+
 ```bash
 ktImportText SRR25820513.krona SRR25820516.krona SRR25820522.krona -o fluids.krona.html
 ```
+
+> **Comentario:** Este comando combina los archivos .krona de las tres muestras en un único archivo HTML interactivo (fluids.krona.html). Este archivo se puede abrir en un navegador web para explorar la composición taxonómica de las muestras de forma conjunta, permitiendo la comparación entre ellas.
 
 ### 4.5 Generar el archivo de metadatos:
 
@@ -433,18 +451,16 @@ SRR25820570     Pleural_fluid
 SRR25820644     Pleural_fluid
 ```
 
+> **Comentario:** Este bloque de comandos crea un archivo de metadatos llamado metadata.txt. Este archivo asocia cada muestra (identificada por su SRR ID) con un tipo de fluido corporal. Esta información es crucial para análisis posteriores, ya que permite agrupar y comparar muestras según su origen.
+
 ### 4.6 Generar el archivo BIOM para cada base de datos y exportarlo:
 
 ```bash
 kraken-biom *.report --fmt json --metadata metadata.txt -o fluid.biom
 ```
 
+> **Comentario:** Este comando utiliza la herramienta kraken-biom para generar un archivo BIOM (fluid.biom) a partir de los archivos .report de Kraken 2 y el archivo de metadatos metadata.txt. El archivo BIOM es un formato estándar para representar datos de abundancia de taxones, y se utiliza comúnmente en análisis de metagenómica. La opción --fmt json especifica el formato JSON para el archivo BIOM, y la opción --metadata metadata.txt indica que se deben incluir los metadatos en el archivo BIOM.
+
 ### 4.7 Exportar el archivo BIOM y visualizarlo en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
 
-
-
-
-
-
-
-
+> **Comentario:** Este último paso implica subir el archivo BIOM (fluid.biom) a la plataforma web MicrobiomeAnalyst para su análisis y visualización interactiva. MicrobiomeAnalyst ofrece una amplia gama de herramientas para el análisis de datos de microbiomas, incluyendo análisis de diversidad, análisis de abundancia diferencial y visualizaciones interactivas. Los resultados de este paso dependerán del análisis específico realizado en MicrobiomeAnalyst.
