@@ -44,6 +44,8 @@ mkdir raw_data
 cd raw_data
 ```
 
+> **Comentario:** Este bloque de comandos establece la estructura inicial del directorio de trabajo para un análisis metataxonómico. Primero, cd sin argumentos asegura que el usuario se encuentre en su directorio de inicio. Luego, se crea un directorio principal llamado metataxonomic para organizar todos los datos y resultados del proyecto. Posteriormente, se ingresa a este directorio. Dentro de metataxonomic, se crea un directorio temporal llamado tmp. La variable de entorno TMPDIR se configura para apuntar a este directorio temporal, lo cual es útil para que ciertas herramientas almacenen archivos temporales durante el procesamiento. Finalmente, se crea un directorio raw_data dentro de metataxonomic, y se ingresa a este directorio. Este directorio está destinado a almacenar los datos brutos o iniciales que se utilizarán en el análisis. En resumen, este bloque de comandos prepara el entorno de trabajo al crear los directorios necesarios y configurar la variable TMPDIR, organizando así los datos para los pasos posteriores del análisis metataxonómico.
+
 ```bash
 gdown https://drive.google.com/uc?id=1sdOtHjQQOB5AZLHTuRSgi3eLp5wnym8l
 
@@ -163,6 +165,8 @@ qiime demux summarize --i-data demuxed_seqs.qza --o-visualization visualization/
 
 ### 3.4 Visualizar el archivo creado en https://view.qiime2.org/
 
+> **Comentario:** Este paso se refiere a la visualización de archivos generados por el software QIIME 2. QIIME 2 produce archivos de visualización con la extensión ".qzv", los cuales están diseñados para ser visualizados a través de la plataforma web view.qiime2.org.
+
 ### 3.5 Realizar la eliminación de iniciadores en las lecturas y generar el reporte del archivo resultante:
 
 ```bash
@@ -177,7 +181,7 @@ qiime demux summarize --i-data demuxed_seqs_trimmed.qza --o-visualization visual
 
 > **Comentario:** Se genera un nuevo resumen de calidad, esta vez para las secuencias que han sido recortadas, permitiendo evaluar el efecto del recorte en la calidad de los datos.
 
-### 3.6 Realizar la eliminación de ruido (denoising)utilizando DADA2:
+### 3.6 Realizar la eliminación de ruido (denoising) utilizando DADA2:
 
 ```bash
 qiime dada2 denoise-paired --i-demultiplexed-seqs demuxed_seqs_trimmed.qza --p-trunc-len-f 0 --p-trunc-len-r 0 --p-n-threads 20 --o-table table.qza --o-representative-sequences representatives.qza --o-denoising-stats denoising_stats.qza
