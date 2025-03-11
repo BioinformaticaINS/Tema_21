@@ -16,7 +16,7 @@
 ```bash
 conda env create -n qiime2-amplicon-2024.10 --file https://data.qiime2.org/distro/amplicon/qiime2-amplicon-2024.10-py310-linux-conda.yml
 
-conda create -n metataxonomic -c bioconda kraken2 krakentools kraken-biom
+conda create -n metataxonomic -c bioconda kraken2 krakentools kraken-biom krona
 ```
 
 > **Comentario:** 
@@ -24,6 +24,7 @@ conda create -n metataxonomic -c bioconda kraken2 krakentools kraken-biom
 > - `kraken2`: Se destaca por su rapidez y precisión en la clasificación taxonómica de secuencias de ADN, permitiendo la identificación de microorganismos presentes en muestras complejas mediante la comparación con extensas bases de datos genómicas; su eficiencia lo hace ideal para el análisis de grandes conjuntos de datos de secuenciación de alto rendimiento, proporcionando información detallada sobre la composición microbiana de diversas muestras ambientales.
 > - `krakentools`: Actúa como un complemento esencial para Kraken2, ofreciendo una variedad de utilidades para el procesamiento y la manipulación de los resultados obtenidos; estas herramientas facilitan la conversión de datos a formatos más manejables, la generación de informes resumidos y la extracción de información taxonómica específica, simplificando así el análisis y la interpretación de los datos de clasificación.
 > - `kraken-biom`: Se especializa en la conversión de los resultados de Kraken2 al formato BIOM, un estándar fundamental en el análisis de microbiomas; al transformar los datos de abundancia taxonómica en una matriz estructurada, esta herramienta permite la integración fluida de los resultados de Kraken2 con otras plataformas de análisis, como QIIME 2, facilitando el análisis comparativo y la visualización de la diversidad microbiana.
+> - `krona`: Una herramienta para visualizar la salida de Kraken en un formato jerárquico interactivo.
 
 ## 2. Obtención de los datos 
 
@@ -165,7 +166,7 @@ qiime demux summarize --i-data demuxed_seqs.qza --o-visualization visualization/
 ### 3.5 Realizar la eliminación de iniciadores en las lecturas y generar el reporte del archivo resultante:
 
 ```bash
-qiime cutadapt trim-paired --i-demultiplexed-sequences demuxed_seqs.qza --p-cores 10 --p-front-f TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG --p-front-r GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC --p-minimum-length 100 --p-discard-untrimmed --o-trimmed-sequences demuxed_seqs_trimmed.qza
+qiime cutadapt trim-paired --i-demultiplexed-sequences demuxed_seqs.qza --p-cores 2 --p-front-f TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG --p-front-r GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC --p-minimum-length 100 --p-discard-untrimmed --o-trimmed-sequences demuxed_seqs_trimmed.qza
 ```
 
 > **Comentario:** Con 'cutadapt', se eliminan los adaptadores y primers de las secuencias. Los parámetros --p-front-f y --p-front-r definen las secuencias a eliminar, --p-minimum-length establece la longitud mínima de las lecturas, y --p-discard-untrimmed descarta secuencias no recortadas.
@@ -290,7 +291,7 @@ biom add-metadata -i exported_table/feature-table.biom --observation-metadata-fp
 
 > **Comentario:** Se genera un archivo BIOM que combina la tabla de características filtrada con la información taxonómica. Este archivo es útil para análisis adicionales y visualizaciones.
 
-### Exportar los archivos BIOM y metadata.txt y visualizarlos en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
+### Exportar los archivos BIOM y metadata.txt para luego visualizarlos en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
 
 ## 4. Análisis metataxonómico utilizando datos Nanopore
 
@@ -306,13 +307,11 @@ cd nanopore
 conda activate metataxonomic
 ```
 
-### 4.2 Generar un script:
+### 4.2 Generar un script para correr kraken 2 en varias muestras:
 
 ```bash
 nano kraken2.sh
 ```
-
-### 4.3 Pegar la siguiente información:
 
 ```bash
 #!/bin/bash
@@ -347,18 +346,102 @@ for file in "$input_dir"/*.fastq.gz; do
 done
 ```
 
+```bash
+head -n 20 SRR25820513.report
 
-### Generar el archivo BIOM para cada base de datos y exportarlo:
+100.00	119852	0	R	1	root
+100.00	119852	0	D	3	  Bacteria
+ 99.95	119789	0	P	1672	    Firmicutes
+ 99.95	119787	30	C	1673	      Bacilli
+ 99.79	119596	4	O	1800	        Lactobacillales
+ 99.77	119575	21	F	1850	          Streptococcaceae
+ 99.73	119526	119526	G	1853	            Streptococcus
+  0.02	28	28	G	1851	            Lactococcus
+  0.01	14	0	F	1828	          Enterococcaceae
+  0.01	14	14	G	1831	            Enterococcus
+  0.00	2	0	F	1836	          Lactobacillaceae
+  0.00	2	2	G	1837	            Lactobacillus
+  0.00	1	0	F	1811	          Carnobacteriaceae
+  0.00	1	1	G	1821	            Granulicatella
+  0.13	158	3	O	1674	        Bacillales
+  0.13	155	0	F	1680	          Bacillaceae
+  0.13	153	153	G	1688	            Bacillus
+  0.00	1	1	G	1690	            Caldibacillus
+  0.00	1	1	G	1696	            Geobacillus
+  0.00	2	0	O	45158	        Alicyclobacillales
+```
 
+```bash
+head -n 3 SRR25820513.kraken
+
+C	SRR25820513.1	Streptococcus (taxid 1853)	1482	3:115 1800:7 3:33 45715:8 3:5 0:41 1853:5 3:23 1853:5 0:26 1673:5 3:2 1688:1 1673:2 0:31 1853:4 3:15 1672:4 3:9 1851:7 1800:1 3:53 1672:1 3:29 45459:5 45465:3 45589:1 0:20 1673:12 3:1 1672:5 3:80 1:6 0:45 1853:3 3:8 1853:8 0:2 1853:1 0:5 1853:8 3:19 0:11 3:3 0:5 3:3 0:1 3:5 1:4 3:77 1:3 3:3 0:10 44069:3 0:18 1853:3 0:1 1673:1 3:5 1853:5 1672:5 1853:6 1673:5 1672:5 1673:5 1672:5 1853:1 1672:29 3:90 1853:1 0:28 1853:8 3:109 1:19 3:17 1673:6 0:41 3:1 2375:2 3:118 0:1 1853:3 0:64 1850:13 3:5 1850:3 3:33
+C	SRR25820513.2	Streptococcus (taxid 1853)	1482	3:22 1853:5 0:15 1673:3 1674:2 0:7 3:2 1673:5 1674:11 3:8 1673:1 3:204 45498:6 0:22 3:2 0:15 1853:1 0:27 2805:5 0:4 3:7 0:3 45544:2 0:2 46831:2 0:28 3:7 1672:5 3:17 45459:1 1672:5 0:44 1673:3 3:25 0:27 3:31 0:26 1688:5 3:11 0:31 3:18 1:3 3:10 0:1 43656:5 0:18 45342:3 45416:5 3:5 45495:4 3:30 1853:1 3:29 3723:4 0:37 1853:2 0:20 1672:5 1673:1 0:10 1853:1 0:14 1853:7 1672:1 0:34 1853:3 3:3 1853:8 3:58 0:29 3:105 1:20 3:5 0:34 3:22 1:2 3:114 1853:26 3:12 1853:1 3:3 0:25 3:5 1850:16 0:21 1688:5 3:14
+C	SRR25820513.3	Streptococcus (taxid 1853)	1503	3:33 1850:3 3:5 1850:17 3:90 1853:1 3:7 1853:5 3:1 1853:15 3:67 1:2 3:1 0:27 3:33 1:19 3:23 1800:4 3:10 1853:6 3:1 1853:5 1673:4 3:89 1853:16 1673:5 1853:1 1673:5 3:30 1853:21 1800:5 1853:1 3:13 1672:11 1853:10 0:23 1853:1 0:5 1853:6 1672:5 1853:5 3:5 1673:1 0:25 3303:5 0:4 3:7 1:3 3:26 1853:2 0:4 1853:1 0:18 1688:1 1800:7 0:11 3:16 1:19 3:84 1:1 3:5 1:1 3:1 1:3 3:5 1:7 3:68 1800:1 0:5 45277:5 0:38 1672:8 3:74 1800:2 1853:9 3:22 1672:3 3:5 1853:1 3:2 1850:5 1672:2 1673:5 3:1 1673:1 3:19 45342:3 3:8 0:32 1853:5 3:14 0:6 1853:3 1672:1 0:2 1853:4 0:16 1673:1 1:2 3:64 1853:5 0:23 3723:7 3:104
+```
+
+### 4.3 Visualizar los archivos report en https://fbreitwieser.shinyapps.io/pavian/
+
+### 4.4 Visualizar los archivos report en krona:
+
+```bash
+ktUpdateTaxonomy.sh
+```
+
+```bash
+kreport2krona.py -r SRR25820513.report -o SRR25820513.krona
+
+kreport2krona.py -r SRR25820516.report -o SRR25820516.krona
+
+kreport2krona.py -r SRR25820522.report -o SRR25820522.krona
+```
+
+```bash
+ktImportText SRR25820513.krona SRR25820516.krona SRR25820522.krona -o fluids.krona.html
+```
+
+### 4.5 Generar el archivo de metadatos:
+
+```bash
+nano metadata.txt
+```
+
+```bash                                                           
+#NAME   fluid
+SRR25820626     Ascitic_fluid
+SRR25820669     Ascitic_fluid
+SRR25820685     Ascitic_fluid
+SRR25820649     Joint_aspirate
+SRR25820672     Joint_aspirate
+SRR25820683     Joint_aspirate
+SRR25820513     Joint_fluid
+SRR25820516     Joint_fluid
+SRR25820661     Joint_fluid
+SRR25820532     Knee_joint_fluid
+SRR25820605     Knee_joint_fluid
+SRR25820617     Knee_joint_fluid
+SRR25820524     Peritoneal_dialysis_fluid
+SRR25820690     Peritoneal_dialysis_fluid
+SRR25820710     Peritoneal_dialysis_fluid
+SRR25820566     Peritoneal_fluid
+SRR25820588     Peritoneal_fluid
+SRR25820611     Peritoneal_fluid
+SRR25820671     Pleural_aspirate
+SRR25820678     Pleural_aspirate
+SRR25820686     Pleural_aspirate
+SRR25820522     Pleural_fluid
+SRR25820570     Pleural_fluid
+SRR25820644     Pleural_fluid
+```
+
+### 4.6 Generar el archivo BIOM para cada base de datos y exportarlo:
+
+```bash
 kraken-biom *.report --fmt json --metadata metadata.txt -o fluid.biom
+```
+
+### 4.7 Exportar el archivo BIOM y visualizarlo en https://www.microbiomeanalyst.ca/MicrobiomeAnalyst/upload/OtuUploadView.xhtml
 
 
-
-
-
-
-
-kraken2 -db /home/ins_user/metataxonomic/raw_data/16S_SILVA138_k2db --threads 2 --use-names /home/ins_user/metataxonomic/raw_data/nanopore/SRR25820513.fastq.gz --output SRR25820513.kraken --report SRR25820513.report
 
 
 
